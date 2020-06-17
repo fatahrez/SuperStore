@@ -6,5 +6,5 @@ admin.site.register(Manager)
 admin.site.register(Shop)
 admin.site.register(Clerk)
 admin.site.register(Merchant)
-admin.site.register(Product)
+admin.site.register(Product_Bunch)
 

@@ -4,9 +4,9 @@ from rest_framework.views import APIView
 from .models import *
 from .serializer import *
 
-class ProductList(APIView):
+class ProductBunchList(APIView):
     def get(self, request, format=None):
-        all_product = Product.objects.all()
-        serializers = Productserializer(all_product, many=True)
+        all_product = Product_Bunch.objects.all()
+        serializers = ProductBunchSerializer(all_product, many=True)
         return Response(serializers.data)
 
