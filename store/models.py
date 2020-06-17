@@ -46,14 +46,14 @@ class Clerk(models.Model):
         return self.profile.username
 
 # Product_g
-class ProductItem(models.Model):
-    Product_item_name = models.CharField(max_length=50, null=True)
+class Product_Bunch(models.Model):
+    product_item_name = models.CharField(max_length=50, null=True)
     buying_price = models.IntegerField(null=True)
     selling_price = models.IntegerField(null=True)
     date_purchased = models.DateField(auto_now=True)
     quantity = models.IntegerField(null=True)
     paid_for = models.BooleanField(default=False)
-    good_condition = models.IntegerField(null=True)
+    spoilt_number_products = models.IntegerField(default=0, null=True)
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
 
 # class Product(models.Model):
