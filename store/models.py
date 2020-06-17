@@ -17,7 +17,7 @@ class Merchant(models.Model):
             Merchant.objects.create(user = instance)
 
     @receiver(post_save,sender = User)
-    def save_merchant( sender, instance, **kwargs):
+    def save_merchant(sender, instance, **kwargs):
         instance.profile.save()
 
 class Manager(models.Model):
@@ -44,18 +44,29 @@ class Clerk(models.Model):
 
     def __str__(self):
         return self.profile.username
-    
-class Product(models.Model):
-    product_name = models.CharField(max_length=50, null=True)
+
+# Product_g
+class ProductItem(models.Model):
+    Product_item_name = models.CharField(max_length=50, null=True)
     buying_price = models.IntegerField(null=True)
     selling_price = models.IntegerField(null=True)
-    date_purchased = models.IntegerField(null=True)
+    date_purchased = models.DateField(auto_now=True)
+    quantity = models.IntegerField(null=True)
     paid_for = models.BooleanField(default=False)
-    good_condition = models.BooleanField(default=True)
+    good_condition = models.IntegerField(null=True)
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
 
+# class Product(models.Model):
+#     product_name = models.CharField(max_length=50, null=True)
+#     buying_price = models.IntegerField(null=True)
+#     selling_price = models.IntegerField(null=True)
+#     date_purchased = models.IntegerField(null=True)
+#     paid_for = models.BooleanField(default=False)
+#     good_condition = models.BooleanField(default=True)
+#     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+
     def __str__(self):
-        return self.product_name
+        return self.product_item_name
 
     # counting products that are spoilt
     # @classmethod
