@@ -4,8 +4,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 class Merchant(models.Model):
-    first_name = models.CharField(max_length=20, null=True)
-    last_name = models.CharField(max_length=20, null=True)
     profile = models.OneToOneField(User, on_delete=models.CASCADE ,related_name='merchant_profile')
 
     def __str__(self):
@@ -21,8 +19,6 @@ class Merchant(models.Model):
     #     instance.profile.save()
 
 class Manager(models.Model):
-    first_name = models.CharField(max_length=20, null=True)
-    last_name = models.CharField(max_length=20, null=True)
     profile = models.OneToOneField(User, on_delete=models.CASCADE ,related_name='manager_profile')
 
     def __str__(self):
@@ -36,14 +32,12 @@ class Shop(models.Model):
         return self.shop_name
 
 class Clerk(models.Model):
-    first_name = models.CharField(max_length=20, null=True)
-    last_name = models.CharField(max_length=20, null=True)
     profile = models.OneToOneField(User, on_delete=models.CASCADE ,related_name='clerk_profile')
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
     manager = models.ForeignKey(Manager, on_delete=models.DO_NOTHING)
 
     def __str__(self):
-        return self.first_name
+        return self.profile.username
 
 class Supplier(models.Model):
     supplier_name = models.CharField(max_length=20, null=True)
@@ -58,8 +52,6 @@ class Item(models.Model):
     def __str__(self):
         return self.item_name
 
-
-# Product_g
 class ProductBatch(models.Model):
 
     item = models.ForeignKey(Item, null=True, on_delete=models.SET_NULL)
