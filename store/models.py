@@ -4,26 +4,14 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 class Merchant(models.Model):
-    first_name = models.CharField(max_length=20, null=True)
-    last_name = models.CharField(max_length=20, null=True)
-    profile = models.ForeignKey(User, on_delete=models.CASCADE)
+    profile = models.OneToOneField(User, on_delete=models.CASCADE ,related_name='merchant_profile')
 
     def __str__(self):
         return self.profile.username
 
-    @receiver(post_save, sender = User)
-    def create_merchant(sender, instance,created, **kwargs):
-        if created:
-            Merchant.objects.create(user = instance)
-
-    @receiver(post_save,sender = User)
-    def save_merchant( sender, instance, **kwargs):
-        instance.profile.save()
 
 class Manager(models.Model):
-    first_name = models.CharField(max_length=20, null=True)
-    last_name = models.CharField(max_length=20, null=True)
-    profile = models.ForeignKey(User, on_delete=models.CASCADE)
+    profile = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.profile.username
@@ -36,9 +24,7 @@ class Shop(models.Model):
         return self.shop_name
 
 class Clerk(models.Model):
-    first_name = models.CharField(max_length=20, null=True)
-    last_name = models.CharField(max_length=20, null=True)
-    profile = models.ForeignKey(User, on_delete=models.CASCADE)
+    profile = models.OneToOneField(User, on_delete=models.CASCADE)
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
     manager = models.ForeignKey(Manager, on_delete=models.DO_NOTHING)
 
