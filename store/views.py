@@ -5,13 +5,17 @@ from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import HttpResponse, Http404,HttpResponseRedirect
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from .models import *
 from .serializer import *
+from rest_framework.permissions import AllowAny
+from django.contrib.auth import get_user_model
 
 class MerchantList(APIView):
     permission_classes = [
         permissions.AllowAny 
     ]
+    serializer_class = MerchantSerializer
     def get(self, request, format=None):
         all_users =  get_user_model().objects.all()
         serializers = MerchantSerializer(all_users, many=True)
@@ -28,6 +32,7 @@ class ManagerList(APIView):
     permission_classes = [
         permissions.AllowAny 
     ]
+    serializer_class = ManagerSerializer
     def get(self, request, format=None):
         all_users =  get_user_model().objects.all()
         serializers = ManagerSerializer(all_users, many=True)
@@ -62,6 +67,7 @@ class SoloMerchant(APIView):
     permission_classes = [
         permissions.AllowAny 
     ]
+    serializer_class = MerchantSerializer
     def get_Merch(self, pk):
         try:
             return get_user_model().objects.get(pk=pk)
@@ -91,6 +97,7 @@ class SoloManager(APIView):
     permission_classes = [
         permissions.AllowAny 
     ]
+    serializer_class = ManagerSerializer
     def get_Manager(self, pk):
         try:
             return get_user_model().objects.get(pk=pk)
@@ -116,20 +123,20 @@ class SoloManager(APIView):
         Manager.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class SoloClerk(APIView):
-    permission_classes = [
-        permissions.AllowAny 
-    ]
-    def get_Clerk(self, pk):
-        try:
-            return get_user_model().objects.get(pk=pk)
-        except get_user_model().DoesNotExist:
-            return Http404
+# class SoloClerk(APIView):
+    # permission_classes = [
+    #     permissions.AllowAny 
+    # ]
+    # def get_Clerk(self, pk):
+    #     try:
+    #         return get_user_model().objects.get(pk=pk)
+    #     except get_user_model().DoesNotExist:
+    #         return Http404
 
-    def get(self, request, pk, format=None):
-        Clerk = self.get_Clerk(pk)
-        serializers = ManagerSerializer(Clerk)
-        return Response(serializers.data)
+    # def get(self, request, pk, format=None):
+    #     Clerk = self.get_Clerk(pk)
+    #     serializers = ClerkSerializer(Clerk)
+    #     return Response(serializers.data)
 
     # def put(self, request, pk, format=None):
     #     Clerk = self.get_Clerk(pk)
@@ -140,10 +147,10 @@ class SoloClerk(APIView):
     #     else:
     #         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        Clerk = self.get_Clerk(pk)
-        Clerk.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    # def delete(self, request, pk, format=None):
+    #     Clerk = self.get_Clerk(pk)
+    #     Clerk.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 class ProductBatchList(APIView):
 
@@ -178,3 +185,16 @@ class ProductBatchList(APIView):
     #     snippet.delete()
     #     return Response(status=status.HTTP_204_NO_CONTENT) 
 
+User = get_user_model()
+
+class UserLoginAPIView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = UserLoginSerializer
+    
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        serializer = UserLoginSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            new_data = serializer.data
+            return Response(new_data, status=HTTP_200_OK)
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
