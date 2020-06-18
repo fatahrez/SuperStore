@@ -8,4 +8,5 @@ urlpatterns = [
     path('api/merchant/merchant-id/<pk>', views.SoloMerchant.as_view()),
     path('api/manager/manager-id/<pk>', views.SoloMerchant.as_view()),
     path('api/clerk/clerk-id/<pk>', views.SoloMerchant.as_view())
+    path('api/product-batch/', views.ProductBatchList.as_view()),
 ]

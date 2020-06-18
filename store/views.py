@@ -5,9 +5,8 @@ from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import HttpResponse, Http404,HttpResponseRedirect
-
-from .serializer import MerchantSerializer,ManagerSerializer, ClerkSerializer
-
+from .models import *
+from .serializer import *
 
 class MerchantList(APIView):
     permission_classes = [
@@ -17,7 +16,7 @@ class MerchantList(APIView):
         all_users =  get_user_model().objects.all()
         serializers = MerchantSerializer(all_users, many=True)
         return Response(serializers.data)
-
+from rest_framework.response import Response
     def post(self, request, format=None):
         serializers = MerchantSerializer(data=request.data)
         if serializers.is_valid():
@@ -146,4 +145,36 @@ class SoloClerk(APIView):
         Clerk.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class ProductBatchList(APIView):
+
+    serializer_class = ProductBatchSerializer
+
+    def get(self, request, format=None):
+        snippets = ProductBatch.objects.all()
+        serializer = ProductBatchSerializer(snippets, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        product_batch_data = request.data
+
+        new_product_batch = ProductBatch.objects.create(
+            item=Item.objects.get(id=product_batch_data["item"]), 
+            buying_price=product_batch_data["buying_price"], 
+            # date_received=product_batch_data["date_received"], 
+            damaged_items=product_batch_data["damaged_items"], 
+            supplier=Supplier.objects.get(id=product_batch_data["supplier"]),
+            clerk=Clerk.objects.get(id=product_batch_data["clerk"]),
+            payment_status=product_batch_data["payment_status"]
+            )
+
+        new_product_batch.save()
+
+        serializer = ProductBatchSerializer(new_product_batch)
+
+        return Response(serializer.data)
+
+    # def delete(self, request, pk, format=None):
+    #     snippet = self.get_object(pk)
+    #     snippet.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT) 
 

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Merchant, Manager, Clerk
+from .models import *
 
 UserModel = get_user_model()
 
@@ -66,4 +66,24 @@ class ManagerSerializer(serializers.ModelSerializer):
 #         write_only_fields = ('password',)
 #         read_only_fields = ('id',)       
 
+
+class ProductBatchSerializer(serializers.ModelSerializer):
+    # item1 = serializers.CharField(source='item.item_name', read_only=True)
+    # supplier1 = serializers.CharField(source='supplier.supplier_name', read_only=True)
+    # clerk1 = serializers.CharField(source='clerk.first_name', read_only=True)
+
+    class Meta:
+        model = ProductBatch
+        fields = (
+            'id',
+            'item',
+            'buying_price',
+            'date_received',
+            'damaged_items',
+            'supplier',
+            'clerk',
+            'payment_status'
+            )
+        depth = 3
+        
 

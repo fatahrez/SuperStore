@@ -9,9 +9,9 @@ class Merchant(models.Model):
     def __str__(self):
         return self.profile.username
 
-
 class Manager(models.Model):
-    profile = models.OneToOneField(User, on_delete=models.CASCADE)
+    profile = models.OneToOneField(User, on_delete=models.CASCADE, related_name='clerk_profile')
+
 
     def __str__(self):
         return self.profile.username
@@ -24,36 +24,52 @@ class Shop(models.Model):
         return self.shop_name
 
 class Clerk(models.Model):
-    profile = models.OneToOneField(User, on_delete=models.CASCADE)
+    profile = models.OneToOneField(User, on_delete=models.CASCADE ,related_name='clerk_profile')
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
     manager = models.ForeignKey(Manager, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return self.profile.username
-    
-class Product(models.Model):
-    product_name = models.CharField(max_length=50, null=True)
+
+class Supplier(models.Model):
+    supplier_name = models.CharField(max_length=20, null=True)
+    supplier_contant = models.CharField(max_length=20, null=True)
+
+    def __str__(self):
+        return self.supplier_name
+
+class Item(models.Model):
+    item_name = models.CharField(max_length=20, null=True)
+
+    def __str__(self):
+        return self.item_name
+
+class ProductBatch(models.Model):
+
+    item = models.ForeignKey(Item, null=True, on_delete=models.SET_NULL)
+
     buying_price = models.IntegerField(null=True)
-    selling_price = models.IntegerField(null=True)
-    date_purchased = models.IntegerField(null=True)
-    paid_for = models.BooleanField(default=False)
-    good_condition = models.BooleanField(default=True)
+
+    date_received = models.DateField(auto_now_add=True)
+
+    damaged_items = models.IntegerField(null=True)
+
+    supplier = models.ForeignKey(Supplier, null=True, on_delete=models.SET_NULL)
+
+    clerk = models.ForeignKey(Clerk, null=True, on_delete=models.SET_NULL)
+
+    payment_status = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.item.item_name
+
+
+class ProductSales(models.Model):
+    product = models.ForeignKey(Item, on_delete=models.DO_NOTHING)
+    quantity = models.IntegerField(null=True)
+    selling_price = models.DateField(auto_now_add=True)
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.product_name
-
-    # counting products that are spoilt
-    # @classmethod
-    # def number_of_spoilt_products(cls):
-    #     spoilt = Product.objects.filter(good_condition=False).count()
-    #     return spoilt
-
-    # counting number of product in the stock
-    # @classmethod
-    # def number_of_products(cls):
-    #     n_products = Product.objects.all().count()
-    #     return n_products
-    
-    # counting product that 
+        return self.product.item_name
 
