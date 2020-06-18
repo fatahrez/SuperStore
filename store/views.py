@@ -16,7 +16,7 @@ class MerchantList(APIView):
         all_users =  get_user_model().objects.all()
         serializers = MerchantSerializer(all_users, many=True)
         return Response(serializers.data)
-from rest_framework.response import Response
+
     def post(self, request, format=None):
         serializers = MerchantSerializer(data=request.data)
         if serializers.is_valid():
@@ -45,17 +45,17 @@ class ClerkList(APIView):
     permission_classes = [
         permissions.AllowAny 
     ]
-    def get(self, request, format=None):
-        all_users =  get_user_model().objects.all()
-        serializers = ClerkSerializer(all_users, many=True)
-        return Response(serializers.data)
+    # def get(self, request, format=None):
+    #     all_users =  get_user_model().objects.all()
+    #     serializers = ClerkSerializer(all_users, many=True)
+    #     return Response(serializers.data)
 
-    def post(self, request, format=None):
-        serializers = ClerkSerializer(data=request.data)
-        if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data, status=status.HTTP_201_CREATED)
-        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+    # def post(self, request, format=None):
+    #     serializers = ClerkSerializer(data=request.data)
+    #     if serializers.is_valid():
+    #         serializers.save()
+    #         return Response(serializers.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SoloMerchant(APIView):
@@ -131,14 +131,14 @@ class SoloClerk(APIView):
         serializers = ManagerSerializer(Clerk)
         return Response(serializers.data)
 
-    def put(self, request, pk, format=None):
-        Clerk = self.get_Clerk(pk)
-        serializers = ClerkSerializer(Clerk, request.data)
-        if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data)
-        else:
-            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+    # def put(self, request, pk, format=None):
+    #     Clerk = self.get_Clerk(pk)
+    #     serializers = ClerkSerializer(Clerk, request.data)
+    #     if serializers.is_valid():
+    #         serializers.save()
+    #         return Response(serializers.data)
+    #     else:
+    #         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
         Clerk = self.get_Clerk(pk)

@@ -10,8 +10,7 @@ class Merchant(models.Model):
         return self.profile.username
 
 class Manager(models.Model):
-    profile = models.OneToOneField(User, on_delete=models.CASCADE, related_name='clerk_profile')
-
+    profile = models.OneToOneField(User, on_delete=models.CASCADE, related_name='manager_profile')
 
     def __str__(self):
         return self.profile.username

@@ -1,5 +1,7 @@
 asgiref==3.2.8
+confusable-homoglyphs==3.2.0
 Django==3.0.7
+django-registration==3.1
 djangorestframework==3.11.0
 pytz==2020.1
 sqlparse==0.3.1
