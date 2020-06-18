@@ -9,17 +9,9 @@ class Merchant(models.Model):
     def __str__(self):
         return self.profile.username
 
-    # @receiver(post_save, sender = User)
-    # def create_merchant(sender, instance,created, **kwargs):
-    #     if created:
-    #         Merchant.objects.create(user = instance)
-
-    # @receiver(post_save,sender = User)
-    # def save_merchant(sender, instance, **kwargs):
-    #     instance.profile.save()
-
 class Manager(models.Model):
-    profile = models.OneToOneField(User, on_delete=models.CASCADE ,related_name='manager_profile')
+    profile = models.OneToOneField(User, on_delete=models.CASCADE, related_name='clerk_profile')
+
 
     def __str__(self):
         return self.profile.username
