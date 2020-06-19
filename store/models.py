@@ -1,20 +1,120 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import BaseUserManager
+from django.conf import settings
 
-class Merchant(models.Model):
-    profile = models.OneToOneField(User, on_delete=models.CASCADE ,related_name='merchant_profile')
+
+
+class CustomUserManager(BaseUserManager):
+
+    def create_user(self, username, email, password):
+        if not username:
+            raise TypeError('Users must have a username.')
+
+        if not email :
+            raise TypeError('User must have email.')
+        email = self.normalize_email(email)
+
+        user = self.model(username=username, email=email)
+        user.set_password(password)
+        user.save()
+
+        return user
+
+    def create_superuser(self, username, email, password):
+
+      user = self.create_user(username, email, password)
+      user.is_superuser = True
+      user.is_staff = True
+      user.save()
+
+      return user
+
+
+class User(AbstractBaseUser, PermissionsMixin):
+    username = models.CharField(db_index=True, max_length=100, unique=True,)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField(db_index=True, unique=True)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELD = ['email', 'username']
+    objects = CustomUserManager()
+
+class MerchantManager(BaseUserManager):
+    def create_merchant(self, username, email, password=None):
+        if email is None:
+            raise TypeError('Users must have an email address.')
+        email = self.normalize_email(email)
+        merchant = Merchant(username=username, email=email)
+        merchant.is_staff = True
+        merchant.is_superuser = True
+        merchant.set_password(password)
+        merchant.save()
+        return merchant
+
+class ManagerManager(BaseUserManager):
+    def create_manager(self, username, email, shop, password=None):
+        if email is None:
+            raise TypeError('Users must have an email address.')
+        email = self.normalize_email(email)
+        manager = Manager(username=username, email=email,shop=shop)
+        manager.is_staff = True
+        manager.set_password(password)
+        manager.save()
+        return manager
+
+class ClerkManager(BaseUserManager):
+    def create_clerk(self, username, email, shop,password=None):
+        if email is None:
+            raise TypeError('Users must have an email address.')
+        email = self.normalize_email(email)
+        clerk = Clerk(username=username, shop=shop,email=email)
+        clerk.set_password(password)
+        clerk.save()
+        return clerk
+
+
+class Merchant(User, PermissionsMixin):
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELD = ['email', 'username']
+  
+
+    objects = MerchantManager()
 
     def __str__(self):
-        return self.profile.username
+        return self.username
 
 
-class Manager(models.Model):
-    profile = models.OneToOneField(User, on_delete=models.CASCADE)
+class Manager(User, PermissionsMixin):
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELD = ['email', 'username']
+
+   
+
+    objects = ManagerManager()
 
     def __str__(self):
-        return self.profile.username
+        return self.username
+
+
+class Clerk(User, PermissionsMixin):
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELD = ['email', 'username']
+    
+
+    objects = ClerkManager()
+
+    def __str__(self):
+        return self.username
+
+
+
 
 class Shop(models.Model):
     shop_name = models.CharField(max_length=50, null=True)
@@ -23,13 +123,7 @@ class Shop(models.Model):
     def __str__(self):
         return self.shop_name
 
-class Clerk(models.Model):
-    profile = models.OneToOneField(User, on_delete=models.CASCADE)
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
-    manager = models.ForeignKey(Manager, on_delete=models.DO_NOTHING)
 
-    def __str__(self):
-        return self.profile.username
     
 class Product(models.Model):
     product_name = models.CharField(max_length=50, null=True)
@@ -43,17 +137,5 @@ class Product(models.Model):
     def __str__(self):
         return self.product_name
 
-    # counting products that are spoilt
-    # @classmethod
-    # def number_of_spoilt_products(cls):
-    #     spoilt = Product.objects.filter(good_condition=False).count()
-    #     return spoilt
 
-    # counting number of product in the stock
-    # @classmethod
-    # def number_of_products(cls):
-    #     n_products = Product.objects.all().count()
-    #     return n_products
-    
-    # counting product that 
 
