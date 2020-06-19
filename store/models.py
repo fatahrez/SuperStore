@@ -17,7 +17,7 @@ class Manager(models.Model):
 
 class Shop(models.Model):
     shop_name = models.CharField(max_length=50, null=True)
-    manger = models.OneToOneField(Manager, on_delete=models.CASCADE)
+    manager = models.OneToOneField(Manager, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.shop_name

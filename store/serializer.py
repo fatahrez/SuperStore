@@ -7,7 +7,7 @@ from django.db.models import Q
 UserModel = get_user_model()
 
 class MerchantSerializer(serializers.ModelSerializer):
-  
+      
     def create(self, validated_data):   
         user = UserModel.objects.create(
             username=validated_data['username'],
@@ -46,6 +46,16 @@ class ManagerSerializer(serializers.ModelSerializer):
         fields = ( "id", "username", "password","email","first_name","last_name"  )
         write_only_fields = ('password',)
         read_only_fields = ('id',) 
+
+class ShopSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Shop
+        fields = (
+            'id',
+            'shop_name',
+            'manager',
+            )
+        depth = 3
 
 class ProductBatchSerializer(serializers.ModelSerializer):
     class Meta:

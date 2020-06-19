@@ -6,8 +6,12 @@ Do not push to dev branch
 ## API endpoints
 
 * For [Login](https://api-shop-url.herokuapp.com/login/)
+* For [Shops](https://api-shop-url.herokuapp.com/api/shop/)
 
 * For [product-batch](https://api-shop-url.herokuapp.com/api/product-batch/)
+* For **each** [product-batch](https://api-shop-url.herokuapp.com/api/merchant/api/product-batch/<int:pk>/)
+  - it won't work until you switch **pk** with an integer
+  - pk stand for primary key.
 
 * For [Merchant](https://api-shop-url.herokuapp.com/api/merchant)
 * For **each** [Merchant](https://api-shop-url.herokuapp.com/api/merchant/merchant-id/<pk>)
