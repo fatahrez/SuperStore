@@ -19,7 +19,22 @@ Do not push to dev branch
   * it won't work until you switch **pk** with an integer
   * pk stand for primary key.
 
-## Run it
+## Runing it on your local server
+
+* Creating a virtual environment
+
+    ```
+
+    $ sudo apt-get install python3-venv
+    $ python3 -m venv virtual
+    ```
+
+* Activating the virtual environment
+
+    ```
+
+    $ . virtual/bin/activate
+    ```
 
 * Install all dependencies with the code **bellow** before you begin
 
@@ -57,7 +72,7 @@ Do not push to dev branch
     david=#
     ```
 
-### Runing it on your local server
+### then you
 
 * Create a file named .env
   
