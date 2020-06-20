@@ -13,6 +13,7 @@ class MerchantList(APIView):
     permission_classes = [
         permissions.AllowAny 
     ]
+    serializer_class = MerchantSerializer
     def get(self, request, format=None):
         all_users =  get_user_model().objects.all()
         serializers = MerchantSerializer(all_users, many=True)
@@ -29,6 +30,7 @@ class ManagerList(APIView):
     permission_classes = [
         permissions.AllowAny 
     ]
+    serializer_class = ManagerSerializer
     def get(self, request, format=None):
         all_users =  get_user_model().objects.all()
         serializers = ManagerSerializer(all_users, many=True)
@@ -46,6 +48,7 @@ class ClerkList(APIView):
     permission_classes = [
         permissions.AllowAny 
     ]
+    serializer_class = ClerkSerializer
     def get(self, request, format=None):
         all_users =  get_user_model().objects.all()
         serializers = ClerkSerializer(all_users, many=True)
@@ -96,6 +99,7 @@ class SoloManager(APIView):
     permission_classes = [
         permissions.AllowAny 
     ]
+    serializer_class = ManagerSerializer
     def get_Manager(self, pk):
         try:
             return get_user_model().objects.get(pk=pk)
@@ -126,6 +130,7 @@ class SoloClerk(APIView):
     permission_classes = [
         permissions.AllowAny 
     ]
+    serializer_class = ClerkSerializer
     def get_Clerk(self, id):
         try:
             return get_user_model().objects.get(id=id)
