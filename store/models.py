@@ -22,14 +22,21 @@ class CustomUserManager(BaseUserManager):
 
         return user
 
+   
+
     def create_superuser(self, username, email, password):
+    
+        if password is None:
+            raise TypeError('Superusers must have a password.')
 
-      user = self.create_user(username, email, password)
-      user.is_superuser = True
-      user.is_staff = True
-      user.save()
+        user = self.create_user(username, email, password)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
 
-      return user
+        return user
+
+       
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -42,12 +49,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    shop = models.CharField(max_length=100,null=True,blank=True)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELD = ['email', 'username']
+    REQUIRED_FIELDS = [ 'username']
     objects = CustomUserManager()
 
 class MerchantManager(BaseUserManager):
-    def create_merchant(self, username, email, password=None):
+    def create_merchant(self, username, email,first_name,last_name, password=None):
         if email is None:
             raise TypeError('Users must have an email address.')
         email = self.normalize_email(email)
@@ -59,7 +67,7 @@ class MerchantManager(BaseUserManager):
         return merchant
 
 class ManagerManager(BaseUserManager):
-    def create_manager(self, username, email, shop, password=None):
+    def create_manager(self, username, email, shop,first_name,last_name, password=None):
         if email is None:
             raise TypeError('Users must have an email address.')
         email = self.normalize_email(email)
@@ -70,7 +78,7 @@ class ManagerManager(BaseUserManager):
         return manager
 
 class ClerkManager(BaseUserManager):
-    def create_clerk(self, username, email, shop,password=None):
+    def create_clerk(self, username, email, shop,first_name,last_name, password=None):
         if email is None:
             raise TypeError('Users must have an email address.')
         email = self.normalize_email(email)
@@ -118,8 +126,7 @@ class Clerk(User, PermissionsMixin):
 
 class Shop(models.Model):
     shop_name = models.CharField(max_length=50, null=True)
-    manger = models.OneToOneField(Manager, on_delete=models.CASCADE)
-
+ 
     def __str__(self):
         return self.shop_name
 
