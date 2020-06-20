@@ -5,9 +5,10 @@ from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import HttpResponse, Http404,HttpResponseRedirect
-
-from .serializer import MerchantSerializer,ManagerSerializer, ClerkSerializer
-
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from .models import *
+from .serializer import *
+from rest_framework.permissions import AllowAny
 
 class MerchantList(APIView):
     permission_classes = [
@@ -60,8 +61,6 @@ class ClerkList(APIView):
             serializers.save()
             return Response(serializers.data, status=status.HTTP_201_CREATED)
         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
 class SoloMerchant(APIView):
@@ -126,6 +125,7 @@ class SoloManager(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+
 class SoloClerk(APIView):
     permission_classes = [
         permissions.AllowAny 
@@ -142,21 +142,89 @@ class SoloClerk(APIView):
         serializers = ClerkSerializer(Clerk)
         return Response(serializers.data)
 
-  
+class ShopsList(APIView):
+    serializer_class = ShopSerializer
+
+    def get(self, request, format=None):
+        snippets = Shop.objects.all()
+        serializer = ShopSerializer(snippets, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = ShopSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+      
+class ProductBatchList(APIView):
+
+    serializer_class = ProductBatchSerializer
+
+    def get(self, request, format=None):
+        snippets = ProductBatch.objects.all()
+        serializer = ProductBatchSerializer(snippets, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        product_batch_data = request.data
+
+        new_product_batch = ProductBatch.objects.create(
+            item=Item.objects.get(id=product_batch_data["item"]), 
+            buying_price=product_batch_data["buying_price"], 
+            damaged_items=product_batch_data["damaged_items"], 
+            supplier=Supplier.objects.get(id=product_batch_data["supplier"]),
+            clerk=Clerk.objects.get(id=product_batch_data["clerk"]),
+            payment_status=product_batch_data["payment_status"]
+            )
+
+        new_product_batch.save()
+
+        serializer = ProductBatchSerializer(new_product_batch)
+
+        return Response(serializer.data) 
+
+class ProductBatchDetail(APIView):
+    """
+    Retrieve, update or delete a snippet instance.
+    """
+    serializer_class = ProductBatchSerializer
+
+    def get_object(self, pk):
+        try:
+            return ProductBatch.objects.get(pk=pk)
+        except ProductBatch.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        snippet = self.get_object(pk)
+        serializer = ProductBatchSerializer(snippet)
+        return Response(serializer.data)
+
     def put(self, request, pk, format=None):
-        Clerk = self.get_Clerk(pk)
-        serializers = ClerkSerializer(Clerk, request.data)
-        if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data)
-        else:
-            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+        snippet = self.get_object(pk)
+        serializer = ProductBatchSerializer(snippet, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
-        Clerk = self.get_Clerk(pk)
-        Clerk.delete()
+        snippet = self.get_object(pk)
+        snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+User = get_user_model()
 
-
+class UserLoginAPIView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = UserLoginSerializer
+    
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        serializer = UserLoginSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            new_data = serializer.data
+            return Response(new_data, status=HTTP_200_OK)
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
