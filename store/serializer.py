@@ -4,13 +4,14 @@ from django.contrib.auth import get_user_model
 from .models import *
 from django.db.models import Q
 
-
+UserModel  = get_user_model
 
 class MerchantSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
-      max_length=128,
-      min_length=8,
-      write_only=True)
+        max_length=128,
+        min_length=8,
+        write_only=True
+        )
     
     class Meta:
         model = Merchant
@@ -22,12 +23,11 @@ class MerchantSerializer(serializers.ModelSerializer):
 
 
 class ManagerSerializer(serializers.ModelSerializer):
-  
     password = serializers.CharField(
-    max_length=128,
-    min_length=8,
-    write_only=True
-    )
+        max_length=128,
+        min_length=8,
+        write_only=True
+        )
     
     class Meta:
         model = Manager
