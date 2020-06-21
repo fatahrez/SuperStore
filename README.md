@@ -5,7 +5,7 @@ Do not push to dev branch
 
 ## API endpoints
 
-* For [Login](https://api-shop-url.herokuapp.com/login/)
+<!-- * For [Login](https://api-shop-url.herokuapp.com/login/) -->
 * For [Shops](https://api-shop-url.herokuapp.com/api/shop/)
 
 * For [product-batch](https://api-shop-url.herokuapp.com/api/product-batch/)
@@ -13,13 +13,18 @@ Do not push to dev branch
   - it won't work until you switch **pk** with an integer
   - pk stand for primary key.
 
+* For [Clerk](https://api-shop-url.herokuapp.com/api/clerk/)
+* For **each** [Clerk](https://api-shop-url.herokuapp.com/api/clerk/clerk-id/<int:pk>)
+  - it won't work until you switch **pk** with an integer
+  - pk stand for primary key.
+
 * For [Merchant](https://api-shop-url.herokuapp.com/api/merchant)
-* For **each** [Merchant](https://api-shop-url.herokuapp.com/api/merchant/merchant-id/<pk>)
+* For **each** [Merchant](https://api-shop-url.herokuapp.com/api/merchant/merchant-id/<int:pk>)
   - it won't work until you switch **pk** with an integer
   - pk stand for primary key.
 
 * For [manager](https://api-shop-url.herokuapp.com/api/manager)
-* For **each** [manager](https://api-shop-url.herokuapp.com/api/manager/manager-id/<pk>)
+* For **each** [manager](https://api-shop-url.herokuapp.com/api/manager/manager-id/<int:pk>)
   * it won't work until you switch **pk** with an integer
   * pk stand for primary key.
 

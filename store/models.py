@@ -7,7 +7,7 @@ from django.conf import settings
 
 
 class CustomUserManager(BaseUserManager):
-
+    
     def create_user(self, username, email, password):
         if not username:
             raise TypeError('Users must have a username.')
@@ -46,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(db_index=True, unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     shop = models.CharField(max_length=100,null=True,blank=True)
@@ -59,7 +59,7 @@ class MerchantManager(BaseUserManager):
         if email is None:
             raise TypeError('Users must have an email address.')
         email = self.normalize_email(email)
-        merchant = Merchant(username=username, email=email)
+        merchant = Merchant(username=username, email=email, first_name=first_name, last_name=last_name)
         merchant.is_staff = True
         merchant.is_superuser = True
         merchant.set_password(password)
@@ -67,11 +67,11 @@ class MerchantManager(BaseUserManager):
         return merchant
 
 class ManagerManager(BaseUserManager):
-    def create_manager(self, username, email, shop,first_name,last_name, password=None):
+    def create_manager(self, username, email, shop, first_name, last_name, password=None):
         if email is None:
             raise TypeError('Users must have an email address.')
         email = self.normalize_email(email)
-        manager = Manager(username=username, email=email,shop=shop)
+        manager = Manager(username=username, email=email ,shop=shop, first_name=first_name, last_name=last_name)
         manager.is_staff = True
         manager.set_password(password)
         manager.save()
@@ -82,7 +82,7 @@ class ClerkManager(BaseUserManager):
         if email is None:
             raise TypeError('Users must have an email address.')
         email = self.normalize_email(email)
-        clerk = Clerk(username=username, shop=shop,email=email)
+        clerk = Clerk(username=username, shop=shop, email=email, first_name=first_name, last_name=last_name)
         clerk.set_password(password)
         clerk.save()
         return clerk

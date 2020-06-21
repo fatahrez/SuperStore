@@ -10,6 +10,8 @@ from .models import *
 from .serializer import *
 from rest_framework.permissions import AllowAny
 
+User = get_user_model()
+
 class MerchantList(APIView):
     permission_classes = [
         permissions.AllowAny 
@@ -131,16 +133,32 @@ class SoloClerk(APIView):
         permissions.AllowAny 
     ]
     serializer_class = ClerkSerializer
-    def get_Clerk(self, id):
+    def get_Clerk(self, pk):
         try:
-            return get_user_model().objects.get(id=id)
+            return get_user_model().objects.get(pk=pk)
         except get_user_model().DoesNotExist:
             return Http404
            
-    def get(self, request, id, format=None):
-        Clerk = self.get_Clerk(id)
+    def get(self, request, pk, format=None):
+        Clerk = self.get_Clerk(pk)
         serializers = ClerkSerializer(Clerk)
         return Response(serializers.data)
+
+  
+    def put(self, request, pk, format=None):
+        Clerk = self.get_Clerk(pk)
+        serializers = ClerkSerializer(Clerk, request.data)
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data)
+        else:
+            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        Clerk = self.get_Clerk(pk)
+        Clerk.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class ShopsList(APIView):
     serializer_class = ShopSerializer
