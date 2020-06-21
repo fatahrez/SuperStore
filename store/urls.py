@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from store.views import *
+from django.conf.urls import include
 
 urlpatterns = [
     path('api/merchant/', views.MerchantList.as_view(), name='merchant'),
@@ -11,6 +12,7 @@ urlpatterns = [
     path('api/clerk/clerk-id/<int:pk>/', views.SoloClerk.as_view()),
     path('api/product-batch/', views.ProductBatchList.as_view()),
     path('api/product-batch/<int:pk>/', ProductBatchDetail.as_view(), name='shops'),
-    path('login/', UserLoginAPIView.as_view(), name='login'),
+    path('auth/', include('djoser.urls')),
+    path('auth/token/login', include('djoser.urls.authtoken'), name='login'),
     path('api/shop/', ShopsList.as_view(), name='shops'),
 ]
