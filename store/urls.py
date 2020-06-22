@@ -13,6 +13,6 @@ urlpatterns = [
     path('api/product-batch/', views.ProductBatchList.as_view()),
     path('api/product-batch/<int:pk>/', ProductBatchDetail.as_view(), name='shops'),
     path('auth/', include('djoser.urls')),
-    path('auth/token/login', include('djoser.urls.authtoken'), name='login'),
+    path('auth/', include('djoser.urls.authtoken'), name='login'),
     path('api/shop/', ShopsList.as_view(), name='shops'),
 ]
