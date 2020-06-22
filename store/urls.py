@@ -12,7 +12,7 @@ urlpatterns = [
     path('api/clerk/clerk-id/<int:pk>/', views.SoloClerk.as_view()),
     path('api/product-batch/', views.ProductBatchList.as_view()),
     path('api/product-batch/<int:pk>/', ProductBatchDetail.as_view(), name='shops'),
-    path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken'), name='login'),
+    path('', include('djoser.urls')),
+    path('', include('djoser.urls.authtoken'), name='login'),
     path('api/shop/', ShopsList.as_view(), name='shops'),
 ]
