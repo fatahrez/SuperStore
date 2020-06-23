@@ -6,12 +6,70 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.http import HttpResponse, Http404,HttpResponseRedirect
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
-
-from .serializer import *
 from rest_framework.permissions import AllowAny
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.decorators import user_passes_test
+from .serializer import *
+from .renderers import UserJSONRenderer
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode,urlsafe_base64_decode
+from django.utils.encoding import force_bytes,force_text,DjangoUnicodeDecodeError
+from .utils import generate_token
+from django.core.mail import EmailMessage
+from django.conf import settings
+from django.views.generic import View
+
+class MerchantRegistration(APIView):
+    permission_classes =  [ permissions.AllowAny ]
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = MerchantSerializer
+
+    def post(self, request):
+        user = request.data.get('user', {})
+        serializer = self.serializer_class(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class ManagerRegistration(APIView):
+    permission_classes =  [ permissions.AllowAny ]
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = ManagerSerializer
+
+    def post(self, request):
+        user = request.data.get('user', {})
+        serializer = self.serializer_class(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()  
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+         
+       
+
+class ClerkRegistration(APIView):
+    permission_classes =  [ permissions.AllowAny]
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = ClerkSerializer
+
+    def post(self, request):
+        user = request.data.get('user', {})
+        serializer = self.serializer_class(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class UserLogin(APIView):
+    permission_classes = [ permissions.AllowAny]
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = UserLoginSearilizer
+
+    def post(self, request):
+        user = request.data.get('user', {})
+        serializer = self.serializer_class(data=user)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 USER = get_user_model()
 
@@ -145,7 +203,7 @@ class SoloClerk(APIView):
             return get_user_model().objects.get(pk=pk)
         except get_user_model().DoesNotExist:
             return Http404
-    
+
     def get(self, request, pk, format=None):
         Clerk = self.get_Clerk(pk)
         serializers = ClerkSerializer(Clerk)
@@ -211,11 +269,7 @@ class ProductBatchList(APIView):
         return Response(serializer.data) 
 
 class ProductBatchDetail(APIView):
-    """
-    Retrieve, update or delete a snippet instance.
-    """
     serializer_class = ProductBatchSerializer
-
     def get_object(self, pk):
         try:
             return ProductBatch.objects.get(pk=pk)
@@ -240,19 +294,6 @@ class ProductBatchDetail(APIView):
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-User = get_user_model()
-
-class UserLoginAPIView(APIView):
-    permission_classes = [AllowAny]
-    serializer_class = UserLoginSerializer
-    
-    def post(self, request, *args, **kwargs):
-        data = request.data
-        serializer = UserLoginSerializer(data=data)
-        if serializer.is_valid(raise_exception=True):
-            new_data = serializer.data
-            return Response(new_data, status=HTTP_200_OK)
-        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 class SoloActivateManager(APIView):
     permission_classes = [

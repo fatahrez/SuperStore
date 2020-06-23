@@ -1,8 +1,10 @@
 from rest_framework import serializers
+from django.contrib.auth import authenticate
 from rest_framework.serializers import *
 from django.contrib.auth import get_user_model
 from .models import *
 from django.db.models import Q
+
 
 UserModel  = get_user_model
 
@@ -23,13 +25,15 @@ class MerchantSerializer(serializers.ModelSerializer):
             "is_staff", 
             "email", 
             "first_name", 
-            "last_name"
+            "last_name",
+            "token"
             ]
         read_only_fields = (
             'id',
             'is_superuser',
             'is_staff',
             )
+
 
     def create(self, validated_data):
         return Merchant.objects.create_merchant(**validated_data)
@@ -64,13 +68,15 @@ class ManagerSerializer(serializers.ModelSerializer):
             "is_superuser", 
             "is_staff", 
             "last_name",
-            "shop", 
+            "shop",
+            "token"
             ]
         read_only_fields = (
             'id', 
             'is_superuser',
             'is_staff',
             )
+
 
     def create(self, validated_data):
         return Manager.objects.create_manager(**validated_data)
@@ -81,7 +87,7 @@ class ClerkSerializer(serializers.ModelSerializer):
     min_length=8,
     write_only=True
     )
-    
+    token = serializers.CharField(max_length=255, read_only=True)
     class Meta:
         model = Clerk
         fields = [
@@ -93,7 +99,8 @@ class ClerkSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "last_name",
-            "shop", 
+            "shop",
+            "token"
             ]
         read_only_fields = (
             'id',
@@ -101,8 +108,47 @@ class ClerkSerializer(serializers.ModelSerializer):
             'is_staff',
             )
 
+
     def create(self, validated_data):
         return Clerk.objects.create_clerk(**validated_data)
+
+class UserLoginSearilizer(serializers.Serializer):
+    email = serializers.CharField(max_length=255)
+    password = serializers.CharField(max_length=128, write_only=True)
+    token = serializers.CharField(max_length=255, read_only=True)
+
+    def validate(self, data):
+        email = data.get('email', None)
+        password = data.get('password', None)
+
+        if email is None:
+            raise serializers.ValidationError(
+                'An email address is required to log in.'
+            )
+
+        if password is None:
+            raise serializers.ValidationError(
+                'password is required to login'
+            )
+
+        user = authenticate(username=email, password=password)
+
+        if user is None:
+            raise serializers.ValidationError(
+                'A user with email and password is required to login'
+            )
+
+    
+        if not user.is_active:
+            raise serializers.ValidationError(
+                'This user has been deactivated'
+            )
+
+        return {
+            'email': user.email,
+            'username': user.username,
+            'token': user.token
+        }
   
 
 class ProductBatchSerializer(serializers.ModelSerializer):
@@ -120,45 +166,6 @@ class ProductBatchSerializer(serializers.ModelSerializer):
             )
         depth = 3
         
-
-class UserLoginSerializer(ModelSerializer):
-    username = CharField()
-    email = EmailField(label='Email Address')
-    class Meta:
-        model = UserModel
-        fields = [
-            'username',
-            'email',
-            'password',
-        ]
-        extra_kwargs = {
-            "password":{"write_only": True},
-            }
-    def validate(self, data):
-        user_obj = None
-        email = data.get("email", None)
-        username = data.get("username", None)
-        password = data["password"]
-        if not email and not username:
-            raise ValidationError("A username or email is required to login.")
-
-        user = UserModel.objects.filter(
-                    Q(email=email) | 
-                    Q(username=username)
-                ).distinct()
-        
-        user = user.exclude(email__isnull=True).exclude(email__iexact='')
-        
-        if user.exists() and user.count() == 1:
-            user_obj = user.first()
-        else:
-            raise ValidationError("This username/email is not valid.")
-        
-        if user_obj:
-            if not user_obj.check_password(password):
-                raise ValidationError("Incorrect credentials please try valid.")
-        return data
-
 class MerchantActivateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Merchant
