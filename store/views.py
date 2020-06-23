@@ -5,9 +5,55 @@ from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import HttpResponse, Http404,HttpResponseRedirect
+from .serializer import *
+from .renderers import UserJSONRenderer
 
-from .serializer import MerchantSerializer,ManagerSerializer, ClerkSerializer
+class MerchantRegistration(APIView):
+    permission_classes =  [ permissions.AllowAny ]
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = MerchantSerializer
 
+    def post(self, request):
+        user = request.data.get('user', {})
+        serializer = self.serializer_class(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class ManagerRegistration(APIView):
+    permission_classes =  [ permissions.AllowAny ]
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = ManagerSerializer
+
+    def post(self, request):
+        user = request.data.get('user', {})
+        serializer = self.serializer_class(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class ClerkRegistration(APIView):
+    permission_classes =  [ permissions.AllowAny]
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = ClerkSerializer
+
+    def post(self, request):
+        user = request.data.get('user', {})
+        serializer = self.serializer_class(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class UserLogin(APIView):
+    permission_classes = [ permissions.AllowAny]
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = UserLoginSearilizer
+
+    def post(self, request):
+        user = request.data.get('user', {})
+        serializer = self.serializer_class(data=user)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class MerchantList(APIView):
     permission_classes = [
@@ -131,14 +177,14 @@ class SoloClerk(APIView):
         permissions.AllowAny 
     ]
     serializer_class = ClerkSerializer
-    def get_Clerk(self, id):
+    def get_Clerk(self, pk):
         try:
-            return get_user_model().objects.get(id=id)
+            return get_user_model().objects.get(pk=pk)
         except get_user_model().DoesNotExist:
             return Http404
            
-    def get(self, request, id, format=None):
-        Clerk = self.get_Clerk(id)
+    def get(self, request, pk, format=None):
+        Clerk = self.get_Clerk(pk)
         serializers = ClerkSerializer(Clerk)
         return Response(serializers.data)
 

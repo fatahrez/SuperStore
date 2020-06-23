@@ -40,7 +40,29 @@ INSTALLED_APPS = [
     'store.apps.StoreConfig',
     'rest_framework',
     'rest_framework.authtoken',
+    
 ]
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'supastore2020@gmail.com'
+EMAIL_HOST_PASSWORD = 'prodev2020'
+EMAIL_PORT = 587
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'store.backends.JWTMerchantAuthentication',
+        'store.backends.JWTManagerAuthentication',
+        'store.backends.JWTClerkAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
