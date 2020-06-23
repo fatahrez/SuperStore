@@ -5,6 +5,7 @@ urlpatterns = [
     path('register-merchant', views.MerchantRegistration.as_view()),
     path('register-manager', views.ManagerRegistration.as_view()),
     path('register-clerk', views.ClerkRegistration.as_view()),
+    # path('activate/<uidb64>/<token>', views.ActivateAccountView.as_view(),name='activate'),
     path('login', views.UserLogin.as_view()),
     path('api/merchant/', views.MerchantList.as_view()),
     path('api/manager/', views.ManagerList.as_view()),

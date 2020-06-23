@@ -7,6 +7,14 @@ from rest_framework import status
 from django.http import HttpResponse, Http404,HttpResponseRedirect
 from .serializer import *
 from .renderers import UserJSONRenderer
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode,urlsafe_base64_decode
+from django.utils.encoding import force_bytes,force_text,DjangoUnicodeDecodeError
+from .utils import generate_token
+from django.core.mail import EmailMessage
+from django.conf import settings
+from django.views.generic import View
 
 class MerchantRegistration(APIView):
     permission_classes =  [ permissions.AllowAny ]
@@ -29,8 +37,11 @@ class ManagerRegistration(APIView):
         user = request.data.get('user', {})
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save()  
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+         
+       
 
 class ClerkRegistration(APIView):
     permission_classes =  [ permissions.AllowAny]
