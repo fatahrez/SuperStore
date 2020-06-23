@@ -15,27 +15,26 @@ class MerchantSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Merchant
-        fields = ["id","username", "password","email","first_name","last_name"]
-        read_only_fields = ('id',)
+        fields = [
+            "id",
+            "username", 
+            "password", 
+            "is_superuser", 
+            "is_staff", 
+            "email", 
+            "first_name", 
+            "last_name"
+            ]
+        read_only_fields = (
+            'id',
+            'is_superuser',
+            'is_staff',
+            )
 
     def create(self, validated_data):
         return Merchant.objects.create_merchant(**validated_data)
 
 
-class ManagerSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        max_length=128,
-        min_length=8,
-        write_only=True
-        )
-    
-    class Meta:
-        model = Manager
-        fields = ["id","username", "password","email","first_name","last_name","shop" ]
-        read_only_fields = ('id',)
-
-    def create(self, validated_data):
-        return Manager.objects.create_manager(**validated_data)
 
 class ShopSerializer(serializers.ModelSerializer):
     class Meta:
@@ -47,6 +46,34 @@ class ShopSerializer(serializers.ModelSerializer):
             )
         depth = 3
 
+class ManagerSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        max_length=128,
+        min_length=8,
+        write_only=True
+        )
+    
+    class Meta:
+        model = Manager
+        fields = [
+            "id",
+            "username", 
+            "password",
+            "email",
+            "first_name", 
+            "is_superuser", 
+            "is_staff", 
+            "last_name",
+            "shop", 
+            ]
+        read_only_fields = (
+            'id', 
+            'is_superuser',
+            'is_staff',
+            )
+
+    def create(self, validated_data):
+        return Manager.objects.create_manager(**validated_data)
 
 class ClerkSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -57,8 +84,22 @@ class ClerkSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Clerk
-        fields = ["id","username", "password","email","first_name","last_name","shop" ]
-        read_only_fields = ('id',)
+        fields = [
+            "id",
+            "username", 
+            "is_superuser", 
+            "is_staff", 
+            "password",
+            "email",
+            "first_name",
+            "last_name",
+            "shop", 
+            ]
+        read_only_fields = (
+            'id',
+            'is_superuser',
+            'is_staff',
+            )
 
     def create(self, validated_data):
         return Clerk.objects.create_clerk(**validated_data)
@@ -75,7 +116,7 @@ class ProductBatchSerializer(serializers.ModelSerializer):
             'damaged_items',
             'supplier',
             'clerk',
-            'payment_status'
+            'payment_status',
             )
         depth = 3
         
@@ -117,3 +158,18 @@ class UserLoginSerializer(ModelSerializer):
             if not user_obj.check_password(password):
                 raise ValidationError("Incorrect credentials please try valid.")
         return data
+
+class MerchantActivateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Merchant
+        fields = ['is_active',]
+
+class ManagerActivateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Manager
+        fields = ['is_active',]
+
+class ClerkActivateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Clerk
+        fields = ['is_active',]

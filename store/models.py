@@ -67,11 +67,11 @@ class MerchantManager(BaseUserManager):
         return merchant
 
 class ManagerManager(BaseUserManager):
-    def create_manager(self, username, email, shop, first_name, last_name, password=None):
+    def create_manager(self, username, email, shop, first_name, last_name, password=None, is_active=True):
         if email is None:
             raise TypeError('Users must have an email address.')
         email = self.normalize_email(email)
-        manager = Manager(username=username, email=email ,shop=shop, first_name=first_name, last_name=last_name)
+        manager = Manager(username=username, email=email ,shop=shop, first_name=first_name, last_name=last_name, is_active=is_active)
         manager.is_staff = True
         manager.set_password(password)
         manager.save()

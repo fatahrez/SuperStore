@@ -6,19 +6,22 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.http import HttpResponse, Http404,HttpResponseRedirect
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
-from .models import *
+
 from .serializer import *
 from rest_framework.permissions import AllowAny
+from django.core.exceptions import PermissionDenied
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import user_passes_test
 
-User = get_user_model()
+USER = get_user_model()
 
 class MerchantList(APIView):
     permission_classes = [
         permissions.AllowAny 
     ]
     serializer_class = MerchantSerializer
-    def get(self, request, format=None):
-        all_users =  get_user_model().objects.all()
+    def get(self, request, format=None ):
+        all_users =  USER.objects.all()
         serializers = MerchantSerializer(all_users, many=True)
         return Response(serializers.data)
 
@@ -35,7 +38,7 @@ class ManagerList(APIView):
     ]
     serializer_class = ManagerSerializer
     def get(self, request, format=None):
-        all_users =  get_user_model().objects.all()
+        all_users =  USER.objects.all()
         serializers = ManagerSerializer(all_users, many=True)
         return Response(serializers.data)
 
@@ -53,7 +56,7 @@ class ClerkList(APIView):
     ]
     serializer_class = ClerkSerializer
     def get(self, request, format=None):
-        all_users =  get_user_model().objects.all()
+        all_users =  USER.objects.all()
         serializers = ClerkSerializer(all_users, many=True)
         return Response(serializers.data)
 
@@ -70,12 +73,14 @@ class SoloMerchant(APIView):
         permissions.AllowAny 
     ]
     serializer_class = MerchantSerializer
+    
     def get_Merch(self, pk):
         try:
-            return get_user_model().objects.get(pk=pk)
+            return USER.objects.get(pk=pk)
         except get_user_model().DoesNotExist:
             return Http404
 
+    
     def get(self, request, pk, format=None):
         Merch = self.get_Merch(pk)
         serializers = MerchantSerializer(Merch)
@@ -90,11 +95,12 @@ class SoloMerchant(APIView):
             return Response(serializers.data)
         else:
             return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        Merch = self.get_Merch(pk)
-        Merch.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def delete(self, request, is_superuser, is_staff, pk, format=None):
+        if is_superuser==True and is_staff==True:
+            Merch = self.get_Merch(pk)
+            Merch.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 class SoloManager(APIView):
     permission_classes = [
@@ -103,8 +109,8 @@ class SoloManager(APIView):
     serializer_class = ManagerSerializer
     def get_Manager(self, pk):
         try:
-            return get_user_model().objects.get(pk=pk)
-        except get_user_model().DoesNotExist:
+            return USER.objects.get(pk=pk)
+        except USER.DoesNotExist:
             return Http404
 
     def get(self, request, pk, format=None):
@@ -121,6 +127,7 @@ class SoloManager(APIView):
         else:
             return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    
     def delete(self, request, pk, format=None):
         Manager = self.get_Manager(pk)
         Manager.delete()
@@ -138,13 +145,13 @@ class SoloClerk(APIView):
             return get_user_model().objects.get(pk=pk)
         except get_user_model().DoesNotExist:
             return Http404
-           
+    
     def get(self, request, pk, format=None):
         Clerk = self.get_Clerk(pk)
         serializers = ClerkSerializer(Clerk)
         return Response(serializers.data)
 
-  
+    
     def put(self, request, pk, format=None):
         Clerk = self.get_Clerk(pk)
         serializers = ClerkSerializer(Clerk, request.data)
@@ -154,6 +161,7 @@ class SoloClerk(APIView):
         else:
             return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    
     def delete(self, request, pk, format=None):
         Clerk = self.get_Clerk(pk)
         Clerk.delete()
@@ -246,3 +254,52 @@ class UserLoginAPIView(APIView):
             return Response(new_data, status=HTTP_200_OK)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
+class SoloActivateManager(APIView):
+    permission_classes = [
+        permissions.AllowAny 
+    ]
+    serializer_class = ManagerActivateSerializer
+    def get_Manager(self, pk):
+        try:
+            return get_user_model().objects.get(pk=pk)
+        except get_user_model().DoesNotExist:
+            return Http404
+
+    def get(self, request, pk, format=None):
+        Manager = self.get_Manager(pk)
+        serializers = ManagerActivateSerializer(Manager)
+        return Response(serializers.data)
+
+    def put(self, request, pk, format=None):
+        Manager = self.get_Manager(pk)
+        serializers = ManagerActivateSerializer(Manager, request.data)
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data)
+        else:
+            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SoloActivateClerk(APIView):
+    permission_classes = [
+        permissions.AllowAny 
+    ]
+    serializer_class = ClerkActivateSerializer
+    def get_Clerk(self, pk):
+        try:
+            return Clerk.objects.get(pk=pk)
+        except Clerk.DoesNotExist:
+            return Http404
+
+    def get(self, request, pk, format=None):
+        Clerk = self.get_Clerk(pk)
+        serializers = ClerkActivateSerializer(Clerk)
+        return Response(serializers.data)
+
+    def put(self, request, pk, format=None):
+        Clerk = self.get_Clerk(pk)
+        serializers = ClerkActivateSerializer(Clerk, request.data)
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data)
+        else:
+            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
