@@ -44,7 +44,6 @@ class CustomUserManager(BaseUserManager):
 
        
 
-
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(db_index=True, max_length=100, unique=True,)
     first_name = models.CharField(max_length=100)
@@ -143,8 +142,6 @@ class Manager(User, PermissionsMixin):
 class Clerk(User, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELD = ['email', 'username']
-    
-
     objects = ClerkManager()
 
     def __str__(self):
@@ -154,24 +151,49 @@ class Clerk(User, PermissionsMixin):
 
 
 class Shop(models.Model):
-    shop_name = models.CharField(max_length=50, null=True)
+    shop_name = models.CharField(max_length=50)
  
     def __str__(self):
         return self.shop_name
 
 
-    
-class Product(models.Model):
-    product_name = models.CharField(max_length=50, null=True)
-    buying_price = models.IntegerField(null=True)
-    selling_price = models.IntegerField(null=True)
-    date_purchased = models.IntegerField(null=True)
-    paid_for = models.BooleanField(default=False)
-    good_condition = models.BooleanField(default=True)
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
 
+class Item(models.Model):
+    item_name = models.CharField(max_length=20, null=True)
+    quantity = models.IntegerField(null=True)
+    damaged_items = models.IntegerField(null=True,blank=True)
+    shop = models.CharField(max_length=100,null=True,blank=True) 
     def __str__(self):
-        return self.product_name
+        return self.item_name
+
+
+class Supplier(models.Model):
+    supplier_name = models.CharField(max_length=20, null=True)
+    supplier_contact = models.CharField(max_length=20, null=True)
+    def __str__(self):
+        return self.supplier_name
+     
+
+class ProductBatch(models.Model):
+    item = models.CharField(max_length=100,null=True,blank=True)
+    buying_price = models.IntegerField(null=True)
+    shop = models.CharField(max_length=100,null=True,blank=True)
+    quantity_bought = models.IntegerField(blank=False)
+    date_received = models.DateField(auto_now_add=True)
+    supplier = models.CharField(max_length=100,null=True,blank=True)
+    clerk = models.CharField(max_length=100,null=True,blank=True)
+    paid_for = models.BooleanField(default=False)
+    def __str__(self):
+        return self.item
+
+class ProductSales(models.Model):
+    item = models.CharField(max_length=100,null=True,blank=True)
+    quantity = models.IntegerField(null=True)
+    selling_price = models.DateField(auto_now_add=True)
+    shop = shop = models.CharField(max_length=100,null=True,blank=True)
+    def __str__(self):
+        return self.item
+
 
 
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import (Merchant, Manager, Clerk)
+from .models import (Merchant, Manager, Clerk, Item, ProductBatch, ProductSales,Shop)
 from django.contrib.auth import authenticate
 
 
@@ -91,6 +91,37 @@ class UserLoginSearilizer(serializers.Serializer):
             'username': user.username,
             'token': user.token
         }
+
+
+class ShopSerializer(serializers.ModelSerializer):
+  
+    class Meta:
+        model = Shop
+        fields = ["shop_name"]
+
+class ItemSerializer(serializers.ModelSerializer):
+  
+    class Meta:
+        model = Item
+        fields = ["item_name","quantity", "damaged_items","shop"]
+
+class ProductBatchSerializer(serializers.ModelSerializer):
+  
+    class Meta:
+        model = ProductBatch
+        fields = ["item","buying_price","quantity_bought","shop","date_received","supplier","clerk","paid_for"]
+   
+class ProductSalesSerializer(serializers.ModelSerializer):
+  
+    class Meta:
+        model = ProductSales
+        fields = ["item","quantity","selling_price","shop"]
+
+
+
+       
+
+   
   
 
 

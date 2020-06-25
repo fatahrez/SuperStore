@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from rest_framework import permissions
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model 
@@ -15,6 +15,8 @@ from .utils import generate_token
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.views.generic import View
+from .models import *
+
 
 class MerchantRegistration(APIView):
     permission_classes =  [ permissions.AllowAny ]
@@ -37,9 +39,43 @@ class ManagerRegistration(APIView):
         user = request.data.get('user', {})
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
-        serializer.save()  
-
+        serializer.save()
+        current_site=get_current_site(request)
+        new_mail = user['email']
+        new_user = User.objects.get(email=new_mail)
+        print(new_user.pk)
+        user=new_user
+        message = render_to_string('auth/activate.html',
+        {
+        'user':user,
+        'domain':current_site.domain,
+        'uid':urlsafe_base64_encode(force_bytes(new_user.pk)),
+        'token':generate_token.make_token(user)
+        }
+        )
+        email_message = EmailMessage(
+        'Superstore registration confirmation' ,   
+        message,
+        settings.EMAIL_HOST_USER,
+        [new_mail],
+        )
+        email_message.send() 
+        
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class ActivateAccountView(View):
+    def get (self,request,uidb64,token):
+        try:
+            uid = force_text(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except Exception as identifier:
+            user=None
+        if user is not None and generate_token.check_token(user,token):
+            user.is_active=True
+            user.save()
+            return redirect('login')
+
+
          
        
 
@@ -213,6 +249,71 @@ class SoloClerk(APIView):
         Clerk = self.get_Clerk(pk)
         Clerk.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+class ItemList(APIView):
+    permission_classes = [
+        permissions.AllowAny 
+    ]
+    serializer_class = ItemSerializer
+    def get(self, request, format=None):
+        all_items =  Item.objects.all()
+        serializers = ItemSerializer(all_items, many=True)
+        return Response(serializers.data)
+
+    def post(self, request, format=None):
+        serializers = ItemSerializer(data=request.data)
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data, status=status.HTTP_201_CREATED)
+        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PurchaseList(APIView):
+    permission_classes = [
+        permissions.AllowAny 
+    ]
+    serializer_class = ProductBatchSerializer
+    def get(self, request, format=None):
+        all_items =  ProductBatch.objects.all()
+        serializers = ProductBatchSerializer(all_items, many=True)
+        return Response(serializers.data)
+
+    def post(self, request, format=None):
+        serializers = ProductBatchSerializer(data=request.data)
+        order = request.data
+        item = Item.objects.get(shop=order["shop"],item_name=order["item"])
+        item.quantity = item.quantity+order["quantity_bought"]
+        item.save()
+        print(item.quantity)
+        
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data, status=status.HTTP_201_CREATED)
+        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SalesList(APIView):
+    permission_classes = [
+        permissions.AllowAny 
+    ]
+    serializer_class = ProductSalesSerializer
+    def get(self, request, format=None):
+        all_items =  ProductSales.objects.all()
+        serializers = ProductSalesSerializer(all_items, many=True)
+        return Response(serializers.data)
+
+    def post(self, request, format=None):
+        serializers = ProductSalesSerializer(data=request.data)
+        sale = request.data
+        item = Item.objects.get(shop=sale["shop"],item_name=sale["item"])
+        item.quantity = item.quantity-sale["quantity"]
+        item.save()
+        print(item.quantity)
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data, status=status.HTTP_201_CREATED)
+        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
